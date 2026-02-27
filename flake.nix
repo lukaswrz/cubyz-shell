@@ -1,5 +1,5 @@
 {
-  description = "Cubyz FHS development shell";
+  description = "Cubyz development shell";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
@@ -27,20 +27,19 @@
       devShells = forAllSystems (
         { system, pkgs, ... }:
         {
-          default =
-            let
-              fhsEnv = pkgs.buildFHSEnv {
-                name = "cubyz-shell";
-                targetPkgs = p: [
-                  p.libx11
-                  p.libxcursor
-                  p.vulkan-loader
-                  p.vulkan-validation-layers
-                  p.libGL
-                ];
-              };
-            in
-            fhsEnv.env;
+          default = pkgs.mkShell {
+            shellHook = ''
+              export LD_LIBRARY_PATH="${
+                lib.makeLibraryPath [
+                  pkgs.libx11
+                  pkgs.libxcursor
+                  pkgs.vulkan-loader
+                  pkgs.vulkan-validation-layers
+                  pkgs.libGL
+                ]
+              }:$LD_LIBRARY_PATH"
+            '';
+          };
         }
       );
     };
